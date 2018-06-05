@@ -15,7 +15,7 @@ prop.g <- round((c(g.mean.proT,g.mean.proY)/(sum(c(g.mean.proT,g.mean.proY))))*1
 funcCat.l <- plyr::ddply(funcCat.df,'funCat',.fun = function(x){
   m.pro <- c(proT = mean(na.omit(x$proT)),
              proY = mean(na.omit(x$proY)))
-  per.pro <- round(m.pro/(sum(m.pro))*100,2)
+  per.pro <- round(m.pro/(sum(m.pro))*100,1)
   names(per.pro) <- paste('p',names(m.pro),sep='.')
   c(m.pro,per.pro)
 })
@@ -27,7 +27,7 @@ funcSubcat <- plyr::ddply(
   .fun = function(x){
     m.pro <- c(proT = mean(na.omit(x$proT)),
                proY = mean(na.omit(x$proY)))
-    per.pro <- round((m.pro/(sum(m.pro)))*100,2)
+    per.pro <- round((m.pro/(sum(m.pro)))*100,1)
     names(per.pro) <- paste('p.',names(m.pro),sep='')
     c(m.pro,per.pro)
   }
@@ -43,35 +43,69 @@ plot(x = seq(from = -40,
      ann = FALSE,
      axes = FALSE
 )
-
-drawDonut(x = 0,
-          y = 0,
-          prop = rep(2,10),
-          label = 'Genome',
-          stroke.size = 0.65)
+proT.genome <- funcCat.df$proT
+proT.genome[is.na(proT.genome)] <- 0
+mean.proT <- mean(proT.genome)
+drawDonut(
+  x = 0,
+  y = 0,
+  prop = c(mean.proT, 100-mean.proT),
+  label = 'Genome',
+  stroke.size = 0.65
+)
+text(x=0,
+     y=-1.45,labels = paste(round(mean.proT,1),'%',sep=''),
+     col = '#2a7fffff')
 idx <- seq(1, 360, length.out = 11)[-1]
 
-coord.xy <- shapes2::get.xy(x = 0,
-                            y = 0,
-                            r.x = 15,
-                            r.y = 15,
-                            start.angle = 0,
-                            end.angle = 360
+coord.xy <- shapes2::get.xy(
+  x = 0,
+  y = 0,
+  r.x = 15,
+  r.y = 15,
+  start.angle = 0,
+  end.angle = 360
 )
 
 for(i in 1:length(idx)){
-  drawDonut(x = coord.xy$x[idx[i]],
-            y = coord.xy$y[idx[i]],
-            prop = funcCat.l$p.proT[i],
-            label = i,r = 0.5)
+  xx = coord.xy$x[idx[i]]
+  yy = coord.xy$y[idx[i]]
+  drawDonut(
+    x = xx,
+    y = yy,
+    prop = funcCat.l$p.proT[i],
+    label = i,
+    r = 0.5
+  )
+  if(xx < 0){
+    x.t <- xx - 4
+  }
+  if(xx > 0){
+    x.t <- xx + 4
+  }
+  if(yy < 0){
+    y.t <- yy - 4.25
+  }
+  if(yy > 0){
+    y.t <- yy + 4.25
+  }
+  text(x.t,y.t,labels = paste(funcCat.l$p.proT[i],'%',sep=''),
+       col = '#2a7fffff')
 }
 
 
 y.sub <- rep(-25,3)
 x.sub <- seq(from = -10, 10,length.out = 3)
 for(i in 1:nrow(funcSubcat)){
-  drawDonut(x = x.sub[i],y = y.sub[i],
+  xsub = x.sub[i]
+  ysub = y.sub[i]
+  drawDonut(x = x.sub[i],
+            y = y.sub[i],
             prop = funcSubcat$p.proT[i],
             label = funcSubcat$subgroup[i],r = 0.5)
+  text(xsub-4.25,
+       ysub+4.25,
+       labels = paste(funcSubcat$p.proT[i],'%',sep=''),
+       col ='#2a7fffff')
 }
 dev.off()
