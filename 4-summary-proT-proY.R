@@ -43,18 +43,15 @@ plot(x = seq(from = -40,
      ann = FALSE,
      axes = FALSE
 )
-proT.genome <- funcCat.df$proT
-proT.genome[is.na(proT.genome)] <- 0
-mean.proT <- mean(proT.genome)
 drawDonut(
   x = 0,
-  y = 0,
-  prop = c(mean.proT, 100-mean.proT),
-  label = 'Genome',
+  y = 1.45,
+  prop = prop.g,
+  label = 'Mtb H37Rv\nGenome',
   stroke.size = 0.65
 )
 text(x=0,
-     y=-1.45,labels = paste(round(mean.proT,1),'%',sep=''),
+     y=-1.45,labels = paste(prop.g[1],'%',sep=''),
      col = '#2a7fffff')
 idx <- seq(1, 360, length.out = 11)[-1]
 
